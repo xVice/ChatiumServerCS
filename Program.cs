@@ -18,8 +18,6 @@ namespace ChatServer
             //Init chatcommands
             logger.Log("Loading commands..");
             ChatCommands.InitCommands();
-            //Init PacketQueue
-            PacketQueue.Init();
             ChatHandler chatHandle = new ChatHandler(ip, port, userPool);
 
             Console.ReadKey();

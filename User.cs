@@ -1,4 +1,5 @@
 ﻿using System.Net.Sockets;
+using Newtonsoft.Json;
 
 namespace TheOneChatServer
 {
@@ -43,10 +44,14 @@ namespace TheOneChatServer
                 {
                     //Thesis: this byte be to big mate, 1024 be filling the richtextbox big bad <- this was actually true, see msg.TakeWhile(x => x != 0).ToArray() 
                     //Deletes any /0's from the byte array!
-                    byte[] msg = new byte[1024];
-                    int size = ClientSocket.Receive(msg);
-                    string curMessage = System.Text.Encoding.ASCII.GetString(msg.TakeWhile(x => x != 0).ToArray());
-                    PacketReceiver.VerifyPacket(new Packet(this, curMessage));
+                    byte[] packetByteArray = new byte[1024];
+                    int packetSize = ClientSocket.Receive(packetByteArray);
+                    string currentClientPacket = System.Text.Encoding.ASCII.GetString(packetByteArray.TakeWhile(x => x != 0).ToArray());
+                    #pragma warning disable CS8600 // Das NULL-Literal oder ein möglicher NULL-Wert wird in einen Non-Nullable-Typ konvertiert.
+                    Packet clientPacket = JsonConvert.DeserializeObject<Packet>(currentClientPacket);
+                    clientPacket.Sender = UserName;
+                    clientPacket.GUID = Guid.NewGuid().ToString();
+                    PacketReceiver.Receive(this, clientPacket)
 
                     /*
                     if (curMessage.StartsWith(ChatCommands.GetPrefix()) && !curMessage.Equals(""))
@@ -61,7 +66,7 @@ namespace TheOneChatServer
                 }
                 catch (System.Net.Sockets.SocketException socketExcept)
                 {
-                    //Cleanup after the user socket excepts/disconnects <- seems to throw a diffrent exception randomly,
+                    //seems to throw a diffrent exception randomly,
                     //I dont really know why and i didnt happen again so i dont know whic exception it threw, only happens on disconnections so
                     //just catch the error and it should be fine
                     userPool.RemoveUser(this);

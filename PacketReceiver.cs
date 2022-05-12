@@ -1,34 +1,29 @@
-﻿
+﻿using Newtonsoft.Json;
 using System.Text.RegularExpressions;
+using System.Text;
 
 namespace TheOneChatServer
 {
     public static class PacketReceiver
     {
-        public static List<Packet> packets = new List<Packet>();
+        public static List<Packet> packetQueue = new List<Packet>();
+        static StringBuilder sb = new StringBuilder();
+        static StringWriter sw = new StringWriter(sb);
 
-        public static void VerifyPacket(Packet packet)
+        public static void Receive(User packageSender, Packet packet)
         {
-            if (useRegex(packet.PacketString) == false)
+            if(JsonConvert.DeserializeObject<Packet>(packet) != null)
             {
-                packets.Add(packet);
-                //string[] allSections = Regex.Split()
+                #pragma warning disable CS8604 // Mögliches Nullverweisargument.
+                packetQueue.Add(JsonConvert.DeserializeObject<Packet>(packetjson));
             }
             else
             {
-                packet.PacketSender.SendMessageAsServer("Deine nachricht konnte nicht vom Server verarbeitet werden!");
+
             }
+            
         }
 
-        public static List<Packet> GetPacketQueue()
-        {
-            return packets;
-        }
-
-        public static bool useRegex(String input)
-        {
-            Regex regex = new Regex("<[a-zA-Z]+><[a-zA-Z]+><[a-zA-Z]+>", RegexOptions.IgnoreCase);
-            return regex.IsMatch(input);
-        }
+        
     }
 }
