@@ -1,1 +1,1 @@
-TheOneChatServer
+Chatium C# Chat Server
